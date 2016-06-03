@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>koa-微信开发(1) | Jours</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="申请公众号在 mp.weixin.qq.com 上根据步骤申请一个账号
+
+进入公众号选择开发–基本配置,进行修改配置
+
+服务器编写根据文档,我们需要做的是1234接入微信公众平台开发，开发者需要按照如下步骤完成：1、填写服务器配置2、验证服务器地址的有效性3、依据接口文档实现业务逻辑
+当你在配置中写完配置,要提交的时候,微信会对你填写的url发送一个get请求, 包括:
+12345参数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="koa-微信开发(1)">
+<meta property="og:url" content="http://yoursite.com/2016/05/31/koa-微信开发(1)/index.html">
+<meta property="og:site_name" content="Jours">
+<meta property="og:description" content="申请公众号在 mp.weixin.qq.com 上根据步骤申请一个账号
+
+进入公众号选择开发–基本配置,进行修改配置
+
+服务器编写根据文档,我们需要做的是1234接入微信公众平台开发，开发者需要按照如下步骤完成：1、填写服务器配置2、验证服务器地址的有效性3、依据接口文档实现业务逻辑
+当你在配置中写完配置,要提交的时候,微信会对你填写的url发送一个get请求, 包括:
+12345参数">
+<meta property="og:image" content="http://yoursite.com/img/bVwE8U">
+<meta property="og:image" content="http://yoursite.com/img/bVwE8W">
+<meta property="og:updated_time" content="2016-05-30T16:26:17.623Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="koa-微信开发(1)">
+<meta name="twitter:description" content="申请公众号在 mp.weixin.qq.com 上根据步骤申请一个账号
+
+进入公众号选择开发–基本配置,进行修改配置
+
+服务器编写根据文档,我们需要做的是1234接入微信公众平台开发，开发者需要按照如下步骤完成：1、填写服务器配置2、验证服务器地址的有效性3、依据接口文档实现业务逻辑
+当你在配置中写完配置,要提交的时候,微信会对你填写的url发送一个get请求, 包括:
+12345参数">
+<meta name="twitter:image" content="http://yoursite.com/img/bVwE8U">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Jours</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">可能是一名node程序员</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="http://jours.cc">关于</a>
+        
+          <a class="main-nav-link" href="http://blog.csdn.net/xi__long">旧博客</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-koa-微信开发(1)" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/05/31/koa-微信开发(1)/" class="article-date">
+  <time datetime="2016-05-30T16:02:51.000Z" itemprop="datePublished">2016-05-31</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      koa-微信开发(1)
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="申请公众号"><a href="#申请公众号" class="headerlink" title="申请公众号"></a>申请公众号</h3><p>在 <a href="https://segmentfault.com/img/bVwE8U" target="_blank" rel="external">mp.weixin.qq.com</a> 上根据步骤申请一个账号</p>
+<p><img src="/img/bVwE8U" alt="图片描述"></p>
+<h3 id="进入公众号"><a href="#进入公众号" class="headerlink" title="进入公众号"></a>进入公众号</h3><p>选择开发–基本配置,进行修改配置</p>
+<p><img src="/img/bVwE8W" alt="图片描述"></p>
+<h3 id="服务器编写"><a href="#服务器编写" class="headerlink" title="服务器编写"></a>服务器编写</h3><p>根据文档,我们需要做的是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">接入微信公众平台开发，开发者需要按照如下步骤完成：</span><br><span class="line">1、填写服务器配置</span><br><span class="line">2、验证服务器地址的有效性</span><br><span class="line">3、依据接口文档实现业务逻辑</span><br></pre></td></tr></table></figure></p>
+<p>当你在配置中写完配置,要提交的时候,微信会对你填写的url发送一个get请求, 包括:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">参数             描述</span><br><span class="line">signature 微信加密签名，signature结合了开发者填写的token参数和请求中的timestamp参数、nonce参数。</span><br><span class="line">timestamp 时间戳</span><br><span class="line">nonce     随机数</span><br><span class="line">echostr   随机字符串</span><br></pre></td></tr></table></figure>
+<p>服务器配置如下:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">router.get(<span class="string">'/wechat'</span>, <span class="function"><span class="keyword">function</span> *(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 获取微信的请求,注意是 get</span></span><br><span class="line">    <span class="keyword">var</span> signature = <span class="keyword">this</span>.query.signature;</span><br><span class="line">    <span class="keyword">var</span> echostr = <span class="keyword">this</span>.query.echostr;</span><br><span class="line">    <span class="keyword">var</span> timestamp = <span class="keyword">this</span>.query.timestamp;</span><br><span class="line">    <span class="keyword">var</span> nonce = <span class="keyword">this</span>.query.nonce;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 这里的token 要和你表单上面的token一致</span></span><br><span class="line">    <span class="keyword">var</span> token = <span class="string">'MMDBB'</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根文档上面的,我们需要对这三个参数进行字典序排序</span></span><br><span class="line">    <span class="keyword">var</span> arr = [token, timestamp, nonce];</span><br><span class="line">    arr.sort();</span><br><span class="line">    <span class="keyword">var</span> tmpStr = arr.join(<span class="string">''</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 排序完成之后,需要进行sha1加密, 这里我们使用node.js 自带的crypto模块</span></span><br><span class="line">    <span class="keyword">var</span> sha1 = crypto.createHash(<span class="string">'sha1'</span>);</span><br><span class="line">    sha1.update(tmpStr);</span><br><span class="line">    <span class="keyword">var</span> resStr = sha1.digest(<span class="string">'hex'</span>);</span><br><span class="line">    <span class="built_in">console</span>.log(signature, <span class="string">'resStr: '</span>, resStr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 开发者获得加密后的字符串可与signature对比，标识该请求来源于微信,</span></span><br><span class="line">    <span class="comment">// 如果匹配,返回echoster , 不匹配则返回error</span></span><br><span class="line">    <span class="keyword">if</span> (resStr === signature) &#123;</span><br><span class="line">        <span class="keyword">this</span>.body = echostr;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="需要注意的点"><a href="#需要注意的点" class="headerlink" title="需要注意的点:"></a>需要注意的点:</h3><ul>
+<li>url 的端口必须是80 或者 443</li>
+<li>如果验证失败,可以在浏览器的开发者模式下,查看network中的情况</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/05/31/koa-微信开发(1)/" data-id="ciou88d6y0000bw60hf5n4ys0" class="article-share-link">Partager</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2016/05/31/koa 微信开发(1)/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Ancien</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Joursion<br>
+      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="http://jours.cc" class="mobile-nav-link">关于</a>
+  
+    <a href="http://blog.csdn.net/xi__long" class="mobile-nav-link">旧博客</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
