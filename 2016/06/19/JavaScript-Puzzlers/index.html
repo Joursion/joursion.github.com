@@ -3,17 +3,24 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Jours</title>
+  <title>JavaScript Puzzlers! | Jours</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Jours">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="JavaScript Puzzlers!or: do you really know JavaScript?(or: how insane do you think JavaScript actually is?)
+let’s   start 下面是我做题后的一个总结和归纳(可能解释不是很标准)
+112What is the result of this expression? (or multi">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript Puzzlers!">
+<meta property="og:url" content="http://yoursite.com/2016/06/19/JavaScript-Puzzlers/index.html">
 <meta property="og:site_name" content="Jours">
-<meta property="og:description">
+<meta property="og:description" content="JavaScript Puzzlers!or: do you really know JavaScript?(or: how insane do you think JavaScript actually is?)
+let’s   start 下面是我做题后的一个总结和归纳(可能解释不是很标准)
+112What is the result of this expression? (or multi">
+<meta property="og:updated_time" content="2017-04-13T15:44:14.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Jours">
-<meta name="twitter:description">
+<meta name="twitter:title" content="JavaScript Puzzlers!">
+<meta name="twitter:description" content="JavaScript Puzzlers!or: do you really know JavaScript?(or: how insane do you think JavaScript actually is?)
+let’s   start 下面是我做题后的一个总结和归纳(可能解释不是很标准)
+112What is the result of this expression? (or multi">
   
   
     <link rel="icon" href="/favicon.png">
@@ -66,111 +73,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-Redis-Action" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/13/Redis-Action/" class="article-date">
-  <time datetime="2017-04-12T16:00:00.000Z" itemprop="datePublished">2017-04-13</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/13/Redis-Action/">Redis在用户数据统计中的简单应用</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在项目的基本功能开发完成之后，有一个对用户的数据的统计需求。用于分析和查看应用的相关数据。正好之前看到过有用Redis统计的例子，便开始慢慢摸索。（可能本篇文章内的并不是最佳实践，总要踩坑，优化嘛。。。）</p>
-<h2 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h2><p>Redis是一个优秀的K-V数据库，Redis的所有数据都是存放在内存中的，</p>
-<p>Redis是用C语言实现的，一般来说C语言实现的程序“距离”操作系统更近，执行速度相对会更快。 </p>
-<p>Redis使用了单线程架构，预防了多线程可能产生的竞争问题。</p>
-<p>Redis有一些非常实用的数据结构，如：String，Set，Hash，List，Zset，方便使用。</p>
-<h2 id="统计的项目需求"><a href="#统计的项目需求" class="headerlink" title="统计的项目需求"></a>统计的项目需求</h2><ul>
-<li>每日新注册用户</li>
-<li>每日登录用户</li>
-<li>每个时段的在线人数</li>
-<li>平均在线</li>
-<li>最高在线  </li>
-<li>充值人数</li>
-<li>新增充值人数</li>
-<li>充值金额</li>
-<li>N日留存</li>
-<li>N日ARPU<br>等。。</li>
-</ul>
-<h2 id="Redis设计"><a href="#Redis设计" class="headerlink" title="Redis设计"></a>Redis设计</h2><p>基于上面的一些需求，在数据类型上可以分成两类</p>
-<ol>
-<li>累计类型</li>
-<li>新增数据（涉及到集合的运算）<br>在数据统计上，也可以分成两类</li>
-<li>每日的数据</li>
-<li>从开始起就统计的数据</li>
-</ol>
-<h3 id="Key设计"><a href="#Key设计" class="headerlink" title="Key设计"></a>Key设计</h3><p>于是可以对键进行设计，Redis是内存数据库，所以对于键的长度也不能忽视，可以采用缩写</p>
-<p>我这里采用 [areaName]:[date]:[type]的格式<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*数据类型*/</span></span><br><span class="line"><span class="keyword">const</span> ValueType = &#123;</span><br><span class="line">    <span class="string">'newPlayer'</span>: <span class="string">'np'</span>,</span><br><span class="line">    <span class="string">'chargeAmount'</span>: <span class="string">'cA'</span>,...</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*生成Redis Key*/</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">initRedisKey</span>(<span class="params">area, type, time</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> date = <span class="string">'all'</span></span><br><span class="line">    <span class="keyword">if</span>(time) &#123;</span><br><span class="line">        date = moment().format(<span class="string">'YYYYMMDD'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">`<span class="subst">$&#123;area&#125;</span>:<span class="subst">$&#123;date&#125;</span>:<span class="subst">$&#123;ValueType[type]&#125;</span>`</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h2 id="Value设计"><a href="#Value设计" class="headerlink" title="Value设计"></a>Value设计</h2><ol>
-<li><p>对于累加类型的数据，可以使用<code>String</code>,比如：每日消耗的金币，每日注册人数等</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">incrbyKey</span>(<span class="params">key, num</span>) </span>&#123;</span><br><span class="line">    cache.incrby(key, num)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>对于需要计算唯一性的数据，比如登录用户，充值人数等，不能继续使用 <code>String</code>,可以选用的有<code>Set</code>,<code>Hash</code>，<code>bitmap</code>等。<br>考虑到平均下来每个服务器分担的用户可能只在万级左右，并且在线人数统计要频繁地统计长度，最后选择了使<code>Set</code>来对这些数据统计。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">cache.sadd(uid, uid) <span class="comment">//用户上线</span></span><br><span class="line">cache.srem(uid) <span class="comment">//用户下线</span></span><br><span class="line">cache.scard(key）<span class="comment">//这个key的长度</span></span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>在计算每小时平均在线的时候，使用<code>String</code>来存储，后续只要对字符串进行格式化，即可方便地计算出每小时平均在线，每小时最高在线，整天的数据。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> *<span class="title">calOnlinePlayerNum</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">let</span> hour = New <span class="built_in">Date</span>().getHours()</span><br><span class="line">    <span class="keyword">let</span> num = <span class="keyword">yield</span> cache.scard(key1)</span><br><span class="line">    cache.append(key2, <span class="string">`-<span class="subst">$&#123;hour&#125;</span>:<span class="subst">$&#123;num&#125;</span>`</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">schedule(</span><br><span class="line">    co(calOnlinePlayerNum)</span><br><span class="line">)</span><br></pre></td></tr></table></figure></p>
-<ol>
-<li>新增的数据计算<br>这一类要记录的数据可能比较多，因为涉及到集合的交集，并集计算，一开始想到的就是<code>Set</code>,又考虑到内存的问题，便将目光转移到<code>bitmap</code>上。<br><code>bitmap</code>有点hash位的感觉，如<code>1000 0001</code>，就可以表示uid为8，0 的用户今天登录过。<br>如果uid时1000000开始的，可以对其切割（减去初始uid）。在第一次setbit的时候，Redis要对其开一个较大的内存，可能会影响性能。</li>
-</ol>
-<p>比如记录留存率：<br>记录每天的新注册的id。[area]:[date]:[type]<br>记录每天的登录用户id。[area]:[date]:[type]</p>
-<p>A日的N日留存率=（A日之后第N天登录过游戏的并且这些用户是在A日新登录的用户数）/（A日新登录的玩家用户数）</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cache.setbit(key, uid, <span class="number">1</span>)</span><br><span class="line"><span class="comment">//====================//</span></span><br><span class="line">cache.bitop(<span class="string">'and'</span> , destKey, key1, key2) <span class="comment">//计算交集</span></span><br><span class="line"><span class="keyword">let</span> a = cache.bitcount(key1) || <span class="number">1</span> </span><br><span class="line"><span class="keyword">let</span> b = cache.bitcount(destKey) <span class="comment">// 交集的长度</span></span><br><span class="line">per = b/a</span><br></pre></td></tr></table></figure>
-<h2 id="持久化数据"><a href="#持久化数据" class="headerlink" title="持久化数据"></a>持久化数据</h2><p>虽然Redis本身也有持久化的功能，但显然这是不划算的，对于每天统计的保存在Redis中的数据，可能有些数据第二天就不需要继续存在Redis里面了，所以，可以选择数据库，将数据持久化到磁盘。<br>对于每天的数据，可以在统计完之后就删除，<br>对于N天的需要统计计算的数据，可以在最后一天进行删除操作。<br>本文使用MongoDB，MongoDB的一个优势就是对JSON的友好。在次日对Redis中的数据进行一定的分类，计算，对数据进行持久化。以date为索引，可以方便后台的以日期为单位进行查询。</p>
-<h2 id="小节"><a href="#小节" class="headerlink" title="小节"></a>小节</h2><p>Redis因其提供的数据结构，使得使用起来非常方便，对于不同的需求，可以有多种的实现方式。<br>但是对于性能和内存的占用还是要有比较多的考虑，<br>本文只是结合一些资料的探索，可能还存在一些不足的地方，希望在实践中能够进行优化。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li>《Redis开发与运维》</li>
-<li>《Redis实战》</li>
-</ul>
-<h2 id="附：-常见的Redis的操作的复杂度"><a href="#附：-常见的Redis的操作的复杂度" class="headerlink" title="附： 常见的Redis的操作的复杂度"></a>附： 常见的Redis的操作的复杂度</h2><h3 id="string"><a href="#string" class="headerlink" title="string"></a>string</h3><p>set o(1)</p>
-<p>get o(1)</p>
-<p>del o(n)</p>
-<h3 id="set"><a href="#set" class="headerlink" title="set"></a>set</h3><p>sadd o(1)</p>
-<p>sismember o(1)</p>
-<p>srem   o(n) n is the number of members to be removed</p>
-<p>smembers  O(N) where N is the set cardinality</p>
-<p>scard o(1)</p>
-<h3 id="zset"><a href="#zset" class="headerlink" title="zset"></a>zset</h3><p>zadd  O(log(N)) for each item added, where N is the number of elements in the sorted set.</p>
-<p>zrange<br>O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements returned.</p>
-<p>zrem<br>O(M*log(N)) with N being the number of elements in the sorted set and M the number of elements to be removed.<br>zrangebyscore<br>O(log(N)+M) with N being the number of elements in the sorted set and M the number of elements being returned. If M is constant (e.g. always asking for the first 10 elements with LIMIT), you can consider it O(log(N)).</p>
-<h3 id="hash"><a href="#hash" class="headerlink" title="hash"></a>hash</h3><p>hset o(1)</p>
-<p>hget o(1)</p>
-<h3 id="bitmap"><a href="#bitmap" class="headerlink" title="bitmap"></a>bitmap</h3><p>bitcount o(n)</p>
-<p>bitop o(n)</p>
-<p>setbit o(1)</p>
-<p>getbit o(1)</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/13/Redis-Action/" data-id="cj1go57mh000053b38aqck8y3" class="article-share-link">Partager</a>
-      
-      
-  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis-MongoDB/">Redis,MongoDB</a></li></ul>
-
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-JavaScript-Puzzlers" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-JavaScript-Puzzlers" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/06/19/JavaScript-Puzzlers/" class="article-date">
   <time datetime="2016-06-18T16:02:51.000Z" itemprop="datePublished">2016-06-19</time>
@@ -183,8 +86,8 @@
       <header class="article-header">
         
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/06/19/JavaScript-Puzzlers/">JavaScript Puzzlers!</a>
+    <h1 class="article-title" itemprop="name">
+      JavaScript Puzzlers!
     </h1>
   
 
@@ -296,59 +199,28 @@
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-koa-微信开发(1)" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/05/31/koa-微信开发(1)/" class="article-date">
-  <time datetime="2016-05-30T16:02:51.000Z" itemprop="datePublished">2016-05-31</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
+    <a href="/2017/04/13/Redis-Action/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Récent</strong>
+      <div class="article-nav-title">
         
+          Redis在用户数据统计中的简单应用
+        
+      </div>
+    </a>
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/05/31/koa-微信开发(1)/">koa-微信开发(1)</a>
-    </h1>
   
+    <a href="/2016/05/31/koa-微信开发(1)/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Ancien</strong>
+      <div class="article-nav-title">koa-微信开发(1)</div>
+    </a>
+  
+</nav>
 
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="申请公众号"><a href="#申请公众号" class="headerlink" title="申请公众号"></a>申请公众号</h3><p>在 <a href="https://segmentfault.com/img/bVwE8U" target="_blank" rel="external">mp.weixin.qq.com</a> 上根据步骤申请一个账号</p>
-<p><img src="/img/bVwE8U" alt="图片描述"></p>
-<h3 id="进入公众号"><a href="#进入公众号" class="headerlink" title="进入公众号"></a>进入公众号</h3><p>选择开发–基本配置,进行修改配置</p>
-<p><img src="/img/bVwE8W" alt="图片描述"></p>
-<h3 id="服务器编写"><a href="#服务器编写" class="headerlink" title="服务器编写"></a>服务器编写</h3><p>根据文档,我们需要做的是<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">接入微信公众平台开发，开发者需要按照如下步骤完成：</span><br><span class="line">1、填写服务器配置</span><br><span class="line">2、验证服务器地址的有效性</span><br><span class="line">3、依据接口文档实现业务逻辑</span><br></pre></td></tr></table></figure></p>
-<p>当你在配置中写完配置,要提交的时候,微信会对你填写的url发送一个get请求, 包括:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">参数             描述</span><br><span class="line">signature 微信加密签名，signature结合了开发者填写的token参数和请求中的timestamp参数、nonce参数。</span><br><span class="line">timestamp 时间戳</span><br><span class="line">nonce     随机数</span><br><span class="line">echostr   随机字符串</span><br></pre></td></tr></table></figure>
-<p>服务器配置如下:</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">router.get(<span class="string">'/wechat'</span>, <span class="function"><span class="keyword">function</span> *(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="comment">// 获取微信的请求,注意是 get</span></span><br><span class="line">    <span class="keyword">var</span> signature = <span class="keyword">this</span>.query.signature;</span><br><span class="line">    <span class="keyword">var</span> echostr = <span class="keyword">this</span>.query.echostr;</span><br><span class="line">    <span class="keyword">var</span> timestamp = <span class="keyword">this</span>.query.timestamp;</span><br><span class="line">    <span class="keyword">var</span> nonce = <span class="keyword">this</span>.query.nonce;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 这里的token 要和你表单上面的token一致</span></span><br><span class="line">    <span class="keyword">var</span> token = <span class="string">'MMDBB'</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 根文档上面的,我们需要对这三个参数进行字典序排序</span></span><br><span class="line">    <span class="keyword">var</span> arr = [token, timestamp, nonce];</span><br><span class="line">    arr.sort();</span><br><span class="line">    <span class="keyword">var</span> tmpStr = arr.join(<span class="string">''</span>);</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 排序完成之后,需要进行sha1加密, 这里我们使用node.js 自带的crypto模块</span></span><br><span class="line">    <span class="keyword">var</span> sha1 = crypto.createHash(<span class="string">'sha1'</span>);</span><br><span class="line">    sha1.update(tmpStr);</span><br><span class="line">    <span class="keyword">var</span> resStr = sha1.digest(<span class="string">'hex'</span>);</span><br><span class="line">    <span class="built_in">console</span>.log(signature, <span class="string">'resStr: '</span>, resStr);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 开发者获得加密后的字符串可与signature对比，标识该请求来源于微信,</span></span><br><span class="line">    <span class="comment">// 如果匹配,返回echoster , 不匹配则返回error</span></span><br><span class="line">    <span class="keyword">if</span> (resStr === signature) &#123;</span><br><span class="line">        <span class="keyword">this</span>.body = echostr;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
-<h3 id="需要注意的点"><a href="#需要注意的点" class="headerlink" title="需要注意的点:"></a>需要注意的点:</h3><ul>
-<li>url 的端口必须是80 或者 443</li>
-<li>如果验证失败,可以在浏览器的开发者模式下,查看network中的情况</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/05/31/koa-微信开发(1)/" data-id="cj1go57mt000353b3aa8cvweu" class="article-share-link">Partager</a>
-      
-      
-    </footer>
-  </div>
   
 </article>
-
-
-  
 
 </section>
         
