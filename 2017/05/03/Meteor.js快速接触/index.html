@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Meteor.js快速接触 | Jours</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Meteor基于Node.js的一个框架。特点：实时数据（基于Websocket），客户端和服务端可以共享代码，很重。
+本文主要讲几个模块：Collection，Methods，Pub／Sub，DDP适合人群： 未接触过Meteor或接触不超过一个星期
+开始安装 Meteor$ curl https://install.meteor.com | sh创建新的应用meteor create [APP">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Meteor.js快速接触">
+<meta property="og:url" content="http://yoursite.com/2017/05/03/Meteor.js快速接触/index.html">
+<meta property="og:site_name" content="Jours">
+<meta property="og:description" content="Meteor基于Node.js的一个框架。特点：实时数据（基于Websocket），客户端和服务端可以共享代码，很重。
+本文主要讲几个模块：Collection，Methods，Pub／Sub，DDP适合人群： 未接触过Meteor或接触不超过一个星期
+开始安装 Meteor$ curl https://install.meteor.com | sh创建新的应用meteor create [APP">
+<meta property="og:updated_time" content="2017-05-03T14:38:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Meteor.js快速接触">
+<meta name="twitter:description" content="Meteor基于Node.js的一个框架。特点：实时数据（基于Websocket），客户端和服务端可以共享代码，很重。
+本文主要讲几个模块：Collection，Methods，Pub／Sub，DDP适合人群： 未接触过Meteor或接触不超过一个星期
+开始安装 Meteor$ curl https://install.meteor.com | sh创建新的应用meteor create [APP">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Jours</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">可能是一名node程序员</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="http://jours.cc">关于</a>
+        
+          <a class="main-nav-link" href="http://blog.csdn.net/xi__long">旧博客</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-Meteor.js快速接触" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/05/03/Meteor.js快速接触/" class="article-date">
+  <time datetime="2017-05-02T16:00:00.000Z" itemprop="datePublished">2017-05-03</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Meteor.js快速接触
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Meteor"><a href="#Meteor" class="headerlink" title="Meteor"></a>Meteor</h2><p>基于Node.js的一个框架。特点：实时数据（基于Websocket），客户端和服务端可以共享代码，很重。</p>
+<p>本文主要讲几个模块：Collection，Methods，Pub／Sub，DDP<br>适合人群： 未接触过Meteor或接触不超过一个星期</p>
+<h2 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h2><h3 id="安装-Meteor"><a href="#安装-Meteor" class="headerlink" title="安装 Meteor"></a>安装 Meteor</h3><p><code>$ curl https://install.meteor.com | sh</code><br>创建新的应用<br><code>meteor create [APPNAME]</code><br>安装包<br><code>meteor npm install</code></p>
+<h3 id="Meteor的文件结构"><a href="#Meteor的文件结构" class="headerlink" title="Meteor的文件结构"></a>Meteor的文件结构</h3><p>也是限制地比较死，最外层的文件结构<br>/client 客户端代码<br>/imports 外部引用代码，如果使用React，代码在这个目录下面<br>/server 服务端代码<br>/lib 一些全局的可以在这里声明</p>
+<h3 id="文件加载顺序"><a href="#文件加载顺序" class="headerlink" title="文件加载顺序"></a>文件加载顺序</h3><ul>
+<li>同一层级下，以文件名的字母顺序载入，有时候需要为了这个改文件名。。</li>
+<li>先载入<code>／lib</code>下的文件</li>
+</ul>
+<h2 id="Core"><a href="#Core" class="headerlink" title="Core"></a>Core</h2><p><code>isClient, isServer</code>来判断时客户端还是服务端，可以分别开来执行<br><code>isDevelopment, isProduction</code>来判断开发环境还是线上环境<br><code>settings</code>配置文件<br>这些都是全局的，使用类似<br><code>Meteor.setting</code>，<code>Meteor.isClient</code></p>
+<h2 id="Collection"><a href="#Collection" class="headerlink" title="Collection"></a>Collection</h2><p>一般来说，Collection的声明是共用的，所以不在<code>client</code>也不再<code>server</code>中。<br>Meteor.js内部集成了MongoDB，好像目前也只支持MongoDB，若要结合其他，可以发起HTTP，DDP，RPC等（后续讲到）<br>创建一个集合，注意：这里的Mongo是全局变量<br><code>Post = new Mongo.Collection(&#39;post&#39;)</code><br>在客户端和服务端中，都有这个概念，虽然定义的语句相同，但是实际的意义却是不同。它们通过（Pub／Sub）来对数据进行同步。<br>其CURD的操作和MongoDB的语法一致，比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; db.posts.insert(&#123;title: &quot;A new post&quot;&#125;);</span><br><span class="line"></span><br><span class="line">&gt; db.posts.find();</span><br><span class="line">&#123; &quot;_id&quot;: ObjectId(&quot;..&quot;), &quot;title&quot; : &quot;A new post&quot;&#125;;</span><br></pre></td></tr></table></figure></p>
+<p>客户端集合<br>客户端的集合更加有趣。当你在客户端申明 Posts = new Mongo.Collection(‘posts’); 你实际上是创建了一个本地的，在浏览器缓存中的真实的 Mongo 集合。 当我们说客户端集合被”缓存”是指它保存了你数据的一个子集，而且对这些数据提供了十分快速的访问。</p>
+<p>有一点我们必须要明白，因为这是 Meteor 工作的一个基础: 通常说来，客户端的集合的数据是你 Mongo 数据库的所有数据的一个子集（毕竟我们不会想把整个数据库的数据全传到客户端来）。</p>
+<p>第二，那些数据是被存储在浏览器内存中的，也就是说访问这些数据几乎不需要时间，不像去服务器访问 Posts.find() 那样需要等待，因为数据事实上已经载入了。</p>
+<p>在 Meteor 中，find() 返回值是一个游标。游标是一种从动数据源。如果你想输出内容，你可以对游标使用 fetch() 来把游标转换成数组。</p>
+<h2 id="发布与订阅"><a href="#发布与订阅" class="headerlink" title="发布与订阅"></a>发布与订阅</h2><p>发布与订阅用语客户端与服务端的数据交互，基本上是实时性比较高的数据才使用。<br>简单的代码如下：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 在服务器端</span></span><br><span class="line">Meteor.publish(<span class="string">'posts'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> Posts.find(&#123;flagged: <span class="literal">false</span>&#125;); </span><br><span class="line">&#125;);</span><br><span class="line"><span class="comment">// 在客户端</span></span><br><span class="line">Meteor.subscribe(<span class="string">'posts'</span>, <span class="string">'bob-smith'</span>);</span><br></pre></td></tr></table></figure></p>
+<p>如果需要使用多个集合，可以选择使用<code>publish-composite</code> 。<br>使用命令 <code>meteor add reywood:publish-composite</code>安装，一个简单的例子：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">Meteor.publishComposite(<span class="string">"userCommentsComposite"</span>, <span class="function"><span class="keyword">function</span>(<span class="params">userId</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    find: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="comment">// 根据用户 Id 查询出该用户所有的评论集合，注意这里是集合</span></span><br><span class="line">      <span class="keyword">return</span> Comment.collection.find(&#123;userId: userId&#125;);</span><br><span class="line">    &#125;,</span><br><span class="line">    children: [</span><br><span class="line">      &#123;</span><br><span class="line">        find: <span class="function"><span class="keyword">function</span>(<span class="params">comment</span>) </span>&#123;</span><br><span class="line">          <span class="comment">// 遍历查询出来的评论集合中所有信息，根据每一条评论关联的文章 Id 查询文章数据</span></span><br><span class="line">          <span class="built_in">console</span>.log(<span class="string">"Get activityId by commantId : commandId ="</span>, comment._id, <span class="string">" commandLinkObjectId ="</span>, comment.linkedObjectId);</span><br><span class="line">          <span class="keyword">return</span> Activities.find(&#123;_id: comment.linkedObjectId&#125;);</span><br><span class="line">        &#125;,</span><br><span class="line">        children: [</span><br><span class="line">          &#123;</span><br><span class="line">            find: <span class="function"><span class="keyword">function</span>(<span class="params">activity</span>) </span>&#123;</span><br><span class="line">              <span class="comment">// 查询该文章所有的点赞信息</span></span><br><span class="line">              <span class="built_in">console</span>.log(<span class="string">"Get like info by activityId :"</span>, activity._id);</span><br><span class="line">              <span class="keyword">return</span> Like.collection.find(&#123;linkedObjectId: activity._id&#125;);</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">            find: <span class="function"><span class="keyword">function</span>(<span class="params">activity</span>) </span>&#123;</span><br><span class="line">              <span class="comment">// 查询该文章的作者信息</span></span><br><span class="line">              <span class="built_in">console</span>.log(<span class="string">"Get activity user info by activity.userId :"</span>, activity.userId);</span><br><span class="line">              <span class="keyword">return</span> Meteor.users.find(&#123;_id: activity.userId&#125;);</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<p>其具体实现有点类似，Promise.then(data=&gt;{})的实现，也是数据一层层传递给<code>children</code></p>
+<h2 id="Methods"><a href="#Methods" class="headerlink" title="Methods"></a>Methods</h2><p>Meteor不像普通的web框架是通过req／res的方式来操作数据，也就没有最近流行的RESTFUL的风格，客户端请求服务端的数据，可以通过Methods来实现，可以理解为Req／Res。<br>在服务端和客户端都可以</p>
+<h3 id="创建Methods"><a href="#创建Methods" class="headerlink" title="创建Methods"></a>创建Methods</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Meteor.methods(&#123;</span><br><span class="line">    say: () =&gt; &#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">    walk: () =&gt; &#123;</span><br><span class="line"></span><br><span class="line">    &#125; </span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<h3 id="调用Methods"><a href="#调用Methods" class="headerlink" title="调用Methods"></a>调用Methods</h3><p>客户端和服务端都可以调用Methods，只是服务端只能调用服务端的，而客户端可以都可以，并优先调用服务端的（即同时存在服务端声明的Methods和客户端声明的Methods时，调用的时候为服务端的）。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//Method.call 或者 Method.apply ,区别和js类似，就是参数的不同。</span></span><br><span class="line">Meteor.apply(<span class="string">"test"</span>,[<span class="number">1</span>,<span class="number">2</span>],<span class="function"><span class="keyword">function</span>(<span class="params">err,res</span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(err)&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure></p>
+<h3 id="Meteor-methods中函数的上下文对象-this"><a href="#Meteor-methods中函数的上下文对象-this" class="headerlink" title="Meteor.methods中函数的上下文对象 this"></a>Meteor.methods中函数的上下文对象 this</h3><ol>
+<li>this.userId<br>调用这个函数的用户的id ，类型：string。如果用户没有登录，值为null。 该属性在 Server的Meteor.methods和Client的Meteor.methods都存在。用官方的描述就是Anywhere。 这个属性依赖Meteor的accounts 模块。</li>
+<li>this.unblock()<br>On the server, methods from a given client run one at a time. The N+1th invocation from a client won’t start until the Nth invocation returns. However, you can change this by calling this.unblock. This will allow the N+1th invocation to start running in a new fiber.</li>
+</ol>
+<h2 id="DDP"><a href="#DDP" class="headerlink" title="DDP"></a>DDP</h2><p>这个类只有个方法 <code>DDP.connect(url)</code>。DDP可以认为是一个类似RPC的实现，对于不同的开发语言，也有对应的包。<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> remote =  DDP.connect(<span class="string">"http://localhost:3010"</span>);<span class="comment">//链接远程服务器</span></span><br><span class="line">remote.methods(&#123;</span><br><span class="line">    say:<span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123; <span class="built_in">console</span>.log(<span class="string">"hello world"</span>)&#125;</span><br><span class="line">&#125;) <span class="comment">//这就是定义远程调用的存根。</span></span><br><span class="line"></span><br><span class="line">remote.call(<span class="string">"say"</span>,<span class="string">"deputy"</span>,<span class="function"><span class="keyword">function</span>(<span class="params">err,res</span>)</span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(res)</span><br><span class="line">&#125;) <span class="comment">//调用远程方法</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="其他模块"><a href="#其他模块" class="headerlink" title="其他模块"></a>其他模块</h2><h3 id="check"><a href="#check" class="headerlink" title="check"></a>check</h3><p>check是一个类型验证的库，如<br><code>check(userid, String);</code></p>
+<h3 id="accounts"><a href="#accounts" class="headerlink" title="accounts"></a>accounts</h3><p>直接使用的账户功能，可以配合Role，简单地实现权限管理。</p>
+<h3 id="HTTP"><a href="#HTTP" class="headerlink" title="HTTP"></a>HTTP</h3><p>meteor内置了HTTP的包，使用<br><code>Http.call(method,url, [options], [asyncCallback])</code></p>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>Meteor.js这个框架很重，虽然提供了很多功能，但是写起来比较不灵活。<br>适合一个人干完前端和服务端的工作。<br>熟悉koa或者express的人可能在刚接触的时候比较难以接受，希望此文能有一定的帮助</p>
+<p>参考：<br>Meteor 组合订阅包 publish-composite 使用 <a href="http://www.mycode.net.cn/language/javascript/1195.html" target="_blank" rel="external">http://www.mycode.net.cn/language/javascript/1195.html</a><br>Discover Meteor <a href="http://wiki.jikexueyuan.com/project/discover-meteor/publish-and-subscribe.html" target="_blank" rel="external">http://wiki.jikexueyuan.com/project/discover-meteor/publish-and-subscribe.html</a><br>实时开发框架Meteor API解读系列&lt;一&gt; Meteor.methods <a href="http://blog.csdn.net/a6383277/article/details/18098929" target="_blank" rel="external">http://blog.csdn.net/a6383277/article/details/18098929</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/05/03/Meteor.js快速接触/" data-id="cj2935n7100017n38nr53c64b" class="article-share-link">Partager</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js-MongoDB/">Node.js,MongoDB</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2017/04/13/Redis-Action/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Ancien</strong>
+      <div class="article-nav-title">Redis在用户数据统计中的简单应用</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Joursion<br>
+      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="http://jours.cc" class="mobile-nav-link">关于</a>
+  
+    <a href="http://blog.csdn.net/xi__long" class="mobile-nav-link">旧博客</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
