@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>记一次MongoDB慢查询 | Jours</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="项目刚上线，流量突然变大，随之而来的是不断的异常日志，经排查，发现有一处的 Mongo 查询为 9 秒多。
+使用 Profiling设置db.setProfilingLevel(level, slowms)
+level 级别，0 : 关闭不收任何数据，1 : 收集慢查询，默认为 100 ms，2 : 收集所有数据。slowms 当超过时，收集数据。
+因为 profile 会影响到一定的性能，所">
+<meta property="og:type" content="article">
+<meta property="og:title" content="记一次MongoDB慢查询">
+<meta property="og:url" content="http://yoursite.com/2017/07/27/MonoDB慢查询/index.html">
+<meta property="og:site_name" content="Jours">
+<meta property="og:description" content="项目刚上线，流量突然变大，随之而来的是不断的异常日志，经排查，发现有一处的 Mongo 查询为 9 秒多。
+使用 Profiling设置db.setProfilingLevel(level, slowms)
+level 级别，0 : 关闭不收任何数据，1 : 收集慢查询，默认为 100 ms，2 : 收集所有数据。slowms 当超过时，收集数据。
+因为 profile 会影响到一定的性能，所">
+<meta property="og:updated_time" content="2017-07-27T07:08:13.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="记一次MongoDB慢查询">
+<meta name="twitter:description" content="项目刚上线，流量突然变大，随之而来的是不断的异常日志，经排查，发现有一处的 Mongo 查询为 9 秒多。
+使用 Profiling设置db.setProfilingLevel(level, slowms)
+level 级别，0 : 关闭不收任何数据，1 : 收集慢查询，默认为 100 ms，2 : 收集所有数据。slowms 当超过时，收集数据。
+因为 profile 会影响到一定的性能，所">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Jours</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">可能是一名node程序员</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">主页</a>
+        
+          <a class="main-nav-link" href="/archives">归档</a>
+        
+          <a class="main-nav-link" href="http://jours.cc">关于</a>
+        
+          <a class="main-nav-link" href="http://blog.csdn.net/xi__long">旧博客</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-MonoDB慢查询" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/07/27/MonoDB慢查询/" class="article-date">
+  <time datetime="2017-07-27T02:34:05.000Z" itemprop="datePublished">2017-07-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      记一次MongoDB慢查询
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>项目刚上线，流量突然变大，随之而来的是不断的异常日志，经排查，发现有一处的 Mongo 查询为 9 秒多。</p>
+<h2 id="使用-Profiling"><a href="#使用-Profiling" class="headerlink" title="使用 Profiling"></a>使用 Profiling</h2><h3 id="设置"><a href="#设置" class="headerlink" title="设置"></a>设置</h3><p><code>db.setProfilingLevel(level, slowms)</code></p>
+<p><code>level</code> 级别，0 : 关闭不收任何数据，1 : 收集慢查询，默认为 100 ms，2 : 收集所有数据。<br><code>slowms</code> 当超过时，收集数据。</p>
+<p>因为 profile 会影响到一定的性能，所以推荐 level 为 1，我这边设为 1 500。</p>
+<p>返回:<br><code>was</code> 当前的 profiling 等级<br><code>slowms</code> 记录的毫秒数</p>
+<h4 id="确认配置"><a href="#确认配置" class="headerlink" title="确认配置"></a>确认配置</h4><p><code>db.getProfilingStatus()</code> </p>
+<h4 id="其他配置方式"><a href="#其他配置方式" class="headerlink" title="其他配置方式"></a>其他配置方式</h4><ol>
+<li>在 MongoDB 启动的时候设置: <code>mongod --profile 1 --slowms 500</code></li>
+<li>在配置文件中:<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">profile = 1</span><br><span class="line">slowms = 200</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="重置"><a href="#重置" class="headerlink" title="重置"></a>重置</h4><p>profile 默认的大小为 1 MB，如果需要更大的空间，可以自己进行配置。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">db.setProfilingLevel(0)</span><br><span class="line">db.system.profile.drop()</span><br><span class="line">db.createCollection( &quot;system.profile&quot;, &#123; capped: true, size:4000000 &#125; )</span><br><span class="line">db.setProfilingLevel(1)</span><br></pre></td></tr></table></figure></p>
+<h4 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h4><p>profile 和 oplog 一样，都是 <code>capped collection</code>，即在一定大小内，会将新的数据覆盖旧的数据。<a href="https://docs.mongodb.com/manual/core/capped-collections/" target="_blank" rel="external">详见</a></p>
+<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><h4 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h4><p><code>db.system.profile.find().pretty()</code><br>查询的过滤条件和普通查询一致，比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">db.system.profile.find( &#123; op: &#123; $ne : ‘command‘ &#125; &#125;).pretty()</span><br><span class="line">db.system.profile.find().sort(&#123; millis: &#123;gte: 1000 &#125;&#125;).pretty()</span><br></pre></td></tr></table></figure></p>
+<p>返回结果，具体可以查看 <a href="https://docs.mongodb.com/manual/reference/database-profiler/" target="_blank" rel="external">Database Profiler Output</a><br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "op" : "update", //操作，有 command，count，distinct，geoNear 等</span><br><span class="line">    "ns" : "test.test1", //操作的表</span><br><span class="line">    "query" : &#123;&#125;, //查询</span><br><span class="line">    "updateobj" : &#123;&#125;, //在更新操作时会有该字段，超过 50 kb 时，其余会用 ... 代替</span><br><span class="line">    "keysExamined" : 9998, //之前为 nscanned 字段，代表数据操作时，扫描过的 key</span><br><span class="line">    "locks" : &#123; //锁相关信息</span><br><span class="line">        "Global" : &#123;  //全局锁</span><br><span class="line">            "acquireCount" : &#123; //操作时请求获取锁的次数</span><br><span class="line">                "r" : NumberLong(79),</span><br><span class="line">                "w" : NumberLong(79)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        "Database" : &#123;  </span><br><span class="line">            "acquireCount" : &#123;</span><br><span class="line">                "w" : NumberLong(79)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        "Collection" : &#123; //集合锁</span><br><span class="line">            "acquireCount" : &#123;</span><br><span class="line">                "w" : NumberLong(79)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    "millis" : 104,</span><br><span class="line">    "ts" : ISODate("2017-07-27T14:20:24.117+08:00"),</span><br><span class="line">    "client" : "",</span><br><span class="line">    "user" : ""</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>注：锁相关资料可以查看 <a href="https://docs.mongodb.com/manual/faq/concurrency/#faq-concurrency-locking" target="_blank" rel="external">FAQ</a></p>
+<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><ol>
+<li>若为查询语句，可以先观察 <code>keysExamined</code> 字段，如果过大，可以适当调整当前集合的索引。</li>
+<li>聚合查询，不知道是业务较复杂，还是当初设计时候未留有较大的空间，较多的使用 <code>aggregation</code>的查询会使用到 <code>$lookup</code>，可以适量通过冗余，以空间换时间不是个坏方法，另外在 <code>pipe</code> 的时候尽量只提取需要的字段。</li>
+<li>负载均衡，读写分离。</li>
+<li>有一个笨方法，在提交代码之前，可以在本地使用 <code>db.xxx.explain()</code>，先分析性能，再进行优化提交。</li>
+</ol>
+<p>这篇文章仅仅是基础，在上线之后的更多经验，愿以后可以慢慢分享。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/07/27/MonoDB慢查询/" data-id="cj5m362bs0003te3895ng3bjp" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2017/06/19/前端路线/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">前端路线</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Joursion<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">主页</a>
+  
+    <a href="/archives" class="mobile-nav-link">归档</a>
+  
+    <a href="http://jours.cc" class="mobile-nav-link">关于</a>
+  
+    <a href="http://blog.csdn.net/xi__long" class="mobile-nav-link">旧博客</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

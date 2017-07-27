@@ -68,6 +68,67 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-MonoDB慢查询" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/07/27/MonoDB慢查询/" class="article-date">
+  <time datetime="2017-07-27T02:34:05.000Z" itemprop="datePublished">2017-07-27</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/07/27/MonoDB慢查询/">记一次MongoDB慢查询</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>项目刚上线，流量突然变大，随之而来的是不断的异常日志，经排查，发现有一处的 Mongo 查询为 9 秒多。</p>
+<h2 id="使用-Profiling"><a href="#使用-Profiling" class="headerlink" title="使用 Profiling"></a>使用 Profiling</h2><h3 id="设置"><a href="#设置" class="headerlink" title="设置"></a>设置</h3><p><code>db.setProfilingLevel(level, slowms)</code></p>
+<p><code>level</code> 级别，0 : 关闭不收任何数据，1 : 收集慢查询，默认为 100 ms，2 : 收集所有数据。<br><code>slowms</code> 当超过时，收集数据。</p>
+<p>因为 profile 会影响到一定的性能，所以推荐 level 为 1，我这边设为 1 500。</p>
+<p>返回:<br><code>was</code> 当前的 profiling 等级<br><code>slowms</code> 记录的毫秒数</p>
+<h4 id="确认配置"><a href="#确认配置" class="headerlink" title="确认配置"></a>确认配置</h4><p><code>db.getProfilingStatus()</code> </p>
+<h4 id="其他配置方式"><a href="#其他配置方式" class="headerlink" title="其他配置方式"></a>其他配置方式</h4><ol>
+<li>在 MongoDB 启动的时候设置: <code>mongod --profile 1 --slowms 500</code></li>
+<li>在配置文件中:<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">profile = 1</span><br><span class="line">slowms = 200</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h4 id="重置"><a href="#重置" class="headerlink" title="重置"></a>重置</h4><p>profile 默认的大小为 1 MB，如果需要更大的空间，可以自己进行配置。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">db.setProfilingLevel(0)</span><br><span class="line">db.system.profile.drop()</span><br><span class="line">db.createCollection( &quot;system.profile&quot;, &#123; capped: true, size:4000000 &#125; )</span><br><span class="line">db.setProfilingLevel(1)</span><br></pre></td></tr></table></figure></p>
+<h4 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h4><p>profile 和 oplog 一样，都是 <code>capped collection</code>，即在一定大小内，会将新的数据覆盖旧的数据。<a href="https://docs.mongodb.com/manual/core/capped-collections/" target="_blank" rel="external">详见</a></p>
+<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><h4 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h4><p><code>db.system.profile.find().pretty()</code><br>查询的过滤条件和普通查询一致，比如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">db.system.profile.find( &#123; op: &#123; $ne : ‘command‘ &#125; &#125;).pretty()</span><br><span class="line">db.system.profile.find().sort(&#123; millis: &#123;gte: 1000 &#125;&#125;).pretty()</span><br></pre></td></tr></table></figure></p>
+<p>返回结果，具体可以查看 <a href="https://docs.mongodb.com/manual/reference/database-profiler/" target="_blank" rel="external">Database Profiler Output</a><br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "op" : "update", //操作，有 command，count，distinct，geoNear 等</span><br><span class="line">    "ns" : "test.test1", //操作的表</span><br><span class="line">    "query" : &#123;&#125;, //查询</span><br><span class="line">    "updateobj" : &#123;&#125;, //在更新操作时会有该字段，超过 50 kb 时，其余会用 ... 代替</span><br><span class="line">    "keysExamined" : 9998, //之前为 nscanned 字段，代表数据操作时，扫描过的 key</span><br><span class="line">    "locks" : &#123; //锁相关信息</span><br><span class="line">        "Global" : &#123;  //全局锁</span><br><span class="line">            "acquireCount" : &#123; //操作时请求获取锁的次数</span><br><span class="line">                "r" : NumberLong(79),</span><br><span class="line">                "w" : NumberLong(79)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        "Database" : &#123;  </span><br><span class="line">            "acquireCount" : &#123;</span><br><span class="line">                "w" : NumberLong(79)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,</span><br><span class="line">        "Collection" : &#123; //集合锁</span><br><span class="line">            "acquireCount" : &#123;</span><br><span class="line">                "w" : NumberLong(79)</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    "millis" : 104,</span><br><span class="line">    "ts" : ISODate("2017-07-27T14:20:24.117+08:00"),</span><br><span class="line">    "client" : "",</span><br><span class="line">    "user" : ""</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>注：锁相关资料可以查看 <a href="https://docs.mongodb.com/manual/faq/concurrency/#faq-concurrency-locking" target="_blank" rel="external">FAQ</a></p>
+<h3 id="优化"><a href="#优化" class="headerlink" title="优化"></a>优化</h3><ol>
+<li>若为查询语句，可以先观察 <code>keysExamined</code> 字段，如果过大，可以适当调整当前集合的索引。</li>
+<li>聚合查询，不知道是业务较复杂，还是当初设计时候未留有较大的空间，较多的使用 <code>aggregation</code>的查询会使用到 <code>$lookup</code>，可以适量通过冗余，以空间换时间不是个坏方法，另外在 <code>pipe</code> 的时候尽量只提取需要的字段。</li>
+<li>负载均衡，读写分离。</li>
+<li>有一个笨方法，在提交代码之前，可以在本地使用 <code>db.xxx.explain()</code>，先分析性能，再进行优化提交。</li>
+</ol>
+<p>这篇文章仅仅是基础，在上线之后的更多经验，愿以后可以慢慢分享。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2017/07/27/MonoDB慢查询/" data-id="cj5m362bs0003te3895ng3bjp" class="article-share-link">Share</a>
+      
+      
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/MongoDB/">MongoDB</a></li></ul>
+
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-前端路线" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/06/19/前端路线/" class="article-date">
@@ -143,7 +204,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/06/19/前端路线/" data-id="cj43ju17q0005mw38z9sgxnkk" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/06/19/前端路线/" data-id="cj5m362bt0004te38fcdq69ue" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/前端-Node-js/">前端, Node.js</a></li></ul>
@@ -211,7 +272,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/05/03/Meteor.js快速接触/" data-id="cj43ju17e0001mw38ocbqlykx" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/05/03/Meteor.js快速接触/" data-id="cj5m362c70007te38q1b4y3hk" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Node-js-MongoDB/">Node.js,MongoDB</a></li></ul>
@@ -313,7 +374,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2017/04/13/Redis-Action/" data-id="cj43ju17i0002mw384fiy4xyz" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2017/04/13/Redis-Action/" data-id="cj5m362c50006te383sst0b1f" class="article-share-link">Share</a>
       
       
   <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Redis-MongoDB/">Redis,MongoDB</a></li></ul>
@@ -445,7 +506,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/06/19/JavaScript-Puzzlers/" data-id="cj43ju1790000mw384zcqm3az" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/06/19/JavaScript-Puzzlers/" data-id="cj5m362bm0001te3841bogsci" class="article-share-link">Share</a>
       
       
     </footer>
@@ -494,7 +555,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/05/31/koa-微信开发(1)/" data-id="cj43ju17o0004mw38kws6sb1g" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/05/31/koa-微信开发(1)/" data-id="cj5m362bh0000te38za5uup2g" class="article-share-link">Share</a>
       
       
     </footer>
